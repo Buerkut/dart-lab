@@ -1,0 +1,1 @@
+Rust is a great, safe and fast, but a little difficult programming language. I love it!
