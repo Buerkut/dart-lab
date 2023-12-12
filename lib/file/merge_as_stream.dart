@@ -2,20 +2,29 @@
 
 import 'dart:io';
 
-Future<void> mergeAsStream(String src1, String src2, String output) async {
-  // final (s_f1, s_f2, o_f) = (File(src1), File(src2), File(output));
-  // final (s1, s2) = (s_f1.openRead(), s_f2.openRead());
-  // final o_s = o_f.openWrite();
+import 'package:dartlab/async/stream/join_stream.dart';
 
-  final s_f1 = File(src1);
-  final o_f = File(output);
-  final s1 = s_f1.openRead();
+Future<void> mergeFilesIntoOne(List<File> files, String outpath) async {
+  final output = await File(outpath).create(recursive: true);
+  final outsink = output.openWrite();
+  try {
+    for (final f in files) {
+      await outsink.addStream(f.openRead());
+    }
+  } catch (e) {
+    print('Error: $e');
+  } finally {
+    outsink.close();
+  }
+}
+
+Future<void> mergeAsStream(String src1, String src2, String output) async {
+  final (f1, f2, o_f) = (File(src1), File(src2), File(output));
+  final r_s = joinStreams([f1.openRead(), f2.openRead()]);
   final o_s = o_f.openWrite();
 
   // The following styles all work.
-  await s1.pipe(o_s);
-  // await o_s.addStream(s1);
-
-  // await o_s.flush();
-  // await o_s.close();
+  // await r_s.pipe(o_s);
+  await o_s.addStream(r_s);
+  await o_s.close();
 }

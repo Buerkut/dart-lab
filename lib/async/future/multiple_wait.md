@@ -1,6 +1,8 @@
-Waiting for multiple futures
+### Waiting for multiple futures
+
 Sometimes your algorithm needs to invoke many asynchronous functions and wait for them all to complete before continuing. Use the Future.wait() static method to manage multiple Futures and wait for them to complete:
 
+```dart
 Future<void> deleteLotsOfFiles() async =>  ...
 Future<void> copyLotsOfFiles() async =>  ...
 Future<void> checksumLotsOfOtherFiles() async =>  ...
@@ -11,6 +13,8 @@ await Future.wait([
   checksumLotsOfOtherFiles(),
 ]);
 print('Done with all the long steps!');
+```
+
 Future.wait() returns a future which completes once all the provided futures have completed. It completes either with their results, or with an error if any of the provided futures fail.
 
 Handling errors for multiple futures
@@ -20,8 +24,9 @@ These extensions return a future with the resulting values of all provided futur
 
 If any future in the collection completes with an error, wait completes with a ParallelWaitError. This allows the caller to handle individual errors and dispose successful results if necessary.
 
-When you don’t need the result values from each individual future, use wait on an iterable of futures:
+**When you don’t need the result values from each individual future, use wait on an iterable of futures:**
 
+```dart
 void main() async {
   Future<void> delete() async =>  ...
   Future<void> copy() async =>  ...
@@ -41,10 +46,12 @@ void main() async {
     print(e.errors[1]);    // Prints null when the result is successful
     print(e.errors[2]);    // Prints error
   }
-
 }
-When you do need the individual result values from each future, use wait on a record of futures. This provides the additional benefit that the futures can be of different types:
+```
 
+**When you do need the individual result values from each future, use wait on a record of futures.** This provides the additional benefit that the futures can be of different types:
+
+```dart
 void main() async {
   Future<int> delete() async =>  ...
   Future<String> copy() async =>  ...
@@ -64,3 +71,4 @@ void main() async {
   var copyString = result.$2;
   var errorBool  = result.$3;
 }
+```
