@@ -4,32 +4,36 @@ import 'dart:io';
 
 import 'read_dir_as_stream.dart';
 
-Future<void> mergeDirIntoAFile(String dirPath, String output) async {
+// More simple and direct implement.
+Future<void> mergeDirIntoAFile(String dirPath, String outpath) async {
   final dir = Directory(dirPath);
   if (!await dir.exists()) {
     print('path does not exist');
     return;
   }
 
-  var files = dir
-      .list(recursive: false, followLinks: false)
-      .where((f) => f is File)
-      .cast<File>();
+  // It is inefficient for cast checks each data event at run-time.
+  // Even if used 'where' to filter file event, the result type is still
+  // Stream<FileSystemEntity> which is not eligible.
+  // var files = dir
+  //     .list(recursive: false, followLinks: false)
+  //     .where((f) => f is File)
+  //     .cast<File>();
 
-  await mergeFilesIntoOne(files, output);
-}
-
-Future<void> mergeFilesIntoOne(Stream<File> files, String outpath) async {
   final output = await File(outpath).create(recursive: true);
-  final outsink = output.openWrite();
+  final sink = output.openWrite();
+  final fs_entities = dir.list(recursive: false, followLinks: false);
+
   try {
-    await for (final f in files) {
-      await outsink.addStream(f.openRead());
+    await for (final entity in fs_entities) {
+      if (entity is File) {
+        await sink.addStream(entity.openRead());
+      }
     }
   } catch (e) {
     print('Error: $e');
   } finally {
-    await outsink.close();
+    await sink.close();
   }
 }
 
