@@ -1,4 +1,4 @@
-The following code shows the differences between the usage between pipe and addStream
+The following code shows the usage differences between pipe and addStream
 
 ```dart
 

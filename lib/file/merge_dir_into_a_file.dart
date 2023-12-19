@@ -37,7 +37,7 @@ Future<void> mergeDirIntoAFile(String dirPath, String outpath) async {
   }
 }
 
-// 另一种实现方式：通过 readDirAsStream 将整个 dir 读为一个 stream。
+// another way: using 'readDirAsStream' to read the dir as a whole stream.
 Future<void> mergeDirIntoAFile2(String path, String output) async {
   final dir = Directory(path);
   if (!await dir.exists()) return;

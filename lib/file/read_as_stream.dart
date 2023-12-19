@@ -13,7 +13,7 @@ void main(List<String> args) async {
   final lines = file
       .openRead() // open for reading as stream.
       .transform(utf8.decoder) // Decode bytes to UTF-8.
-      .transform(LineSplitter()); // Convert stream to individual lines.
+      .transform(const LineSplitter()); // Convert stream to individual lines.
   try {
     await for (var line in lines) {
       // print('$line: ${line.length} characters');

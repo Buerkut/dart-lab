@@ -1,5 +1,8 @@
 ### Waiting for multiple futures
 
+**Important:**
+***以下展示多种 异步等待多个 Future 执行完毕的方法。但要注意的是，这些等待方法不保证执行顺序。也就是说，如果多个异步等待有先后依赖和执行的顺序，那么不能使用以下的任何一种方法。***
+
 Sometimes your algorithm needs to invoke many asynchronous functions and wait for them all to complete before continuing. Use the Future.wait() static method to manage multiple Futures and wait for them to complete:
 
 ```dart

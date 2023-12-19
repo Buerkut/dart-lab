@@ -15,9 +15,10 @@ Future<void> mergeAsLines(String src1, String src2, String output) async {
   for (final line in await s_f1.readAsLines()) {
     o_s.writeln(line);
   }
-  for (final line in await s_f2.readAsLines()) {
-    o_s.writeln(line);
-  }
+  // for (final line in await s_f2.readAsLines()) {
+  //   o_s.writeln(line);
+  // }
+  o_s.writeAll(await s_f2.readAsLines(), '\n');
 
   // when file is big, use stream to read it.
   // final lines =

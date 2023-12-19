@@ -1,4 +1,4 @@
-import 'package:dartlab/enum_syntax.dart';
+import 'package:dartlab/enum/enum_syntax.dart';
 
 void main() {
   print(Color.values);
