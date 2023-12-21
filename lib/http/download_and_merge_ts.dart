@@ -14,7 +14,7 @@ void main(List<String> args) async {
       .transform(utf8.decoder) // Decode bytes to UTF-8.
       .transform(const LineSplitter()); // Convert stream to individual lines.
 
-  final fpths = <String>[], mn = 21;
+  final fpths = <String>[], mn = 22;
   var c = 0;
   await for (var line in lines) {
     if (line.startsWith('#')) continue;
@@ -25,7 +25,7 @@ void main(List<String> args) async {
 
   final isolateNum = 8;
   // final tfs = await lineProcess(fpths, n);
-  final tfs = await conprocess(fpths, isolateNum, downloadAndMerge).wait;
+  final tfs = await conprocess(fpths, downloadAndMerge, isolateNum).wait;
   // 将多个isolate合并的临时文件再次合并为最终文件，完成后删除临时文件。
   final merged = await mergeFilesIntoOne(
       tfs, './lib/http/downloads/gear2/ts/merged/merged.ts');
@@ -49,27 +49,28 @@ Future<List<File>> lineProcess(List<String> fpths, int n) async {
 }
 
 // Note: 这才是真正的并行，从输出顺序中可以看出来各 isolate 是并行执行的。
-List<Future<R>> conprocess<R, T>(List<T> tasks, int isolateNum,
-    Future<R> Function(List<T> tasks, int i, int begin, int end) compute) {
-  final seg = tasks.length ~/ isolateNum;
-  var i = 0, results = <Future<R>>[];
+List<Future<R>> conprocess<R, T>(
+    List<T> tasks, Future<R> Function(int i, Iterable<T> slice) compute,
+    [int isolateNum = 8]) {
+  final results = <Future<R>>[];
+  var i = 0, seg = tasks.length ~/ isolateNum;
   while (i < isolateNum - 1) {
     // Important: can't use await here.
-    results.add(Isolate.run(() => compute(tasks, i, seg * i, seg * (i + 1))));
+    results.add(
+        Isolate.run(() => compute(i, tasks.slice(seg * i, seg * (i + 1)))));
     i++;
   }
-  results.add(Isolate.run(() => compute(tasks, i, seg * i, tasks.length)));
+  results.add(Isolate.run(() => compute(i, tasks.slice(seg * i))));
   return results;
 }
 
-Future<File> downloadAndMerge(
-    List<String> fpths, int i, int begin, int end) async {
+Future<File> downloadAndMerge(int i, Iterable<String> slice) async {
   final pdir = './lib/http/downloads/gear2/ts/';
   final files = <Future<File>>[], client = HttpClient();
 
   print('Isolate$i download start.');
   try {
-    for (final fpth in fpths.slice(begin, end)) {
+    for (final fpth in slice) {
       print('$fpth download start');
       final url =
           Uri.http('devimages.apple.com', '/iphone/samples/bipbop/gear2/$fpth');
